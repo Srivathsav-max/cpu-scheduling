@@ -1,5 +1,5 @@
 # Live
-Live Demo [CPU Scheduling Simulator] (https://cpu-scheduling-tau.vercel.app/).
+Live Demo [CPU Scheduling Simulator](https://cpu-scheduling-tau.vercel.app/).
 
 # Getting Started with Create React App
 
