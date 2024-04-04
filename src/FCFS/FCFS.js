@@ -31,7 +31,7 @@ function FCFS() {
     let totalTurnaroundTime = 0;
     let lastCompletionTime = 0;
 
-    const processesWithDetails = processList.map((process) => {
+    const processesWithDetails = processList.sort((a, b) => a.arrivalTime - b.arrivalTime).map((process) => {
       const waitingTime = Math.max(currentTime - process.arrivalTime, 0);
       const turnaroundTime = waitingTime + process.burstTime;
       currentTime = Math.max(currentTime, process.arrivalTime) + process.burstTime;
@@ -40,7 +40,7 @@ function FCFS() {
       totalWaitingTime += waitingTime;
       totalTurnaroundTime += turnaroundTime;
 
-      return { ...process, waitingTime, turnaroundTime, completedTime: currentTime };
+      return { ...process, waitingTime, turnaroundTime, finishTime: currentTime };
     });
 
     const totalTimeTaken = lastCompletionTime;
@@ -60,6 +60,29 @@ function FCFS() {
     averageTurnaroundTime,
     throughput,
   } = calculateFCFS(processes);
+
+  const renderGanttChart = () => {
+    const ganttChart = [];
+    let currentTime = 0;
+
+    processedList.forEach((process) => {
+      const startTime = Math.max(currentTime, process.arrivalTime);
+      const endTime = startTime + process.burstTime;
+
+      ganttChart.push(
+        <div key={process.id} className="flex items-center">
+          <div className="w-4 h-6 bg-gray-200 mr-2"></div>
+          <span className="font-semibold">{process.id}</span>
+          <div className="bg-blue-500 h-6 ml-2" style={{ width: `${(endTime - startTime) * 20}px` }}></div>
+          <span className="ml-2">{startTime} - {endTime}</span>
+        </div>
+      );
+
+      currentTime = endTime;
+    });
+
+    return ganttChart;
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 m-4">
@@ -88,16 +111,23 @@ function FCFS() {
       </button>
 
       <div className="mt-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Gantt Chart</h3>
+        <div className="flex items-center">
+          {renderGanttChart()}
+        </div>
+      </div>
+
+      <div className="mt-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-2">Processes</h3>
         <table className="min-w-full table-auto">
           <thead className="bg-gray-200">
             <tr>
-              <th className="px-4 py-2 border">ID</th>
+              <th className="px-4 py-2 border">Job</th>
               <th className="px-4 py-2 border">Arrival Time</th>
               <th className="px-4 py-2 border">Burst Time</th>
-              <th className="px-4 py-2 border">Waiting Time</th>
+              <th className="px-4 py-2 border">Finish Time</th>
               <th className="px-4 py-2 border">Turnaround Time</th>
-              <th className="px-4 py-2 border">Completed Time</th>
+              <th className="px-4 py-2 border">Waiting Time</th>
             </tr>
           </thead>
           <tbody>
@@ -106,25 +136,27 @@ function FCFS() {
                 <td className="px-4 py-2 border">{process.id}</td>
                 <td className="px-4 py-2 border">{process.arrivalTime}</td>
                 <td className="px-4 py-2 border">{process.burstTime}</td>
-                <td className="px-4 py-2 border">{process.waitingTime}</td>
+                <td className="px-4 py-2 border">{process.finishTime}</td>
                 <td className="px-4 py-2 border">{process.turnaroundTime}</td>
-                <td className="px-4 py-2 border">{process.completedTime}</td>
+                <td className="px-4 py-2 border">{process.waitingTime}</td>
               </tr>
             ))}
           </tbody>
+          <tfoot className="bg-gray-200">
+            <tr>
+              <td colSpan={3} className="px-4 py-2 border font-semibold text-right">Average</td>
+              <td className="px-4 py-2 border"></td>
+              <td className="px-4 py-2 border">{averageTurnaroundTime.toFixed(2)}</td>
+              <td className="px-4 py-2 border">{averageWaitingTime.toFixed(2)}</td>
+            </tr>
+          </tfoot>
         </table>
       </div>
 
       <div className="mt-4">
         <div className="flex justify-between items-center">
           <div className="text-lg font-semibold text-gray-900">
-            Average Waiting Time: {averageWaitingTime.toFixed(2)}
-          </div>
-          <div className="text-lg font-semibold text-gray-900">
-            Average Turnaround Time: {averageTurnaroundTime.toFixed(2)}
-          </div>
-          <div className="text-lg font-semibold text-gray-900">
-            Throughput: {throughput} processes/unit time
+            Throughput: {throughput.toFixed(2)} processes/unit time
           </div>
         </div>
       </div>
