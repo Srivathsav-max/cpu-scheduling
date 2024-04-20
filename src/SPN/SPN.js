@@ -103,7 +103,7 @@ function SPN() {
             <tbody>
               {processedList.map((process, index) => (
                 <tr key={index}>
-                  <td className="border px-4 py-2">{process.id}</td>
+                  <td className="border px-4 py-2">P{process.id}</td>
                   <td className="border px-4 py-2">{process.arrivalTime}</td>
                   <td className="border px-4 py-2">{process.burstTime}</td>
                   <td className="border px-4 py-2">{process.waitingTime}</td>
