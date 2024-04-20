@@ -2,21 +2,20 @@ import React, { useState } from 'react';
 
 function HRRN() {
   const [processes, setProcesses] = useState([]);
-  const [inputProcess, setInputProcess] = useState({ id: 1, arrivalTime: 0, burstTime: 0 });
-  const [currentTime, setCurrentTime] = useState(0);
+  const [inputProcess, setInputProcess] = useState({ id: 1, arrivalTime: '', burstTime: '' });
 
   const addProcess = () => {
-    if (inputProcess.burstTime > 0) {
+    if (inputProcess.burstTime > 0 && inputProcess.arrivalTime >= 0) {
       setProcesses(prevProcesses => [
         ...prevProcesses,
         { ...inputProcess, id: prevProcesses.length + 1, remainingTime: inputProcess.burstTime }
       ]);
-      setInputProcess({ id: processes.length + 2, arrivalTime: 0, burstTime: 0 });
+      setInputProcess({ id: processes.length + 2, arrivalTime: '', burstTime: '' });
     }
   };
 
-  const calculateHRRN = (processes, currentTime) => {
-    let localTime = currentTime;
+  const calculateHRRN = (processes) => {
+    let localTime = processes.length > 0 ? processes[0].arrivalTime : 0; // Start at the arrival of the first process
     const n = processes.length;
     const completed = new Array(n).fill(false);
     const waitingTime = new Array(n).fill(0);
@@ -41,7 +40,7 @@ function HRRN() {
       }
       waitingTime[idx] = localTime - processes[idx].arrivalTime;
       localTime += processes[idx].burstTime;
-      turnaroundTime[idx] = localTime - processes[idx].arrivalTime;
+      turnaroundTime[idx] = waitingTime[idx] + processes[idx].burstTime;
       completed[idx] = true;
       completedProcesses++;
     }
@@ -53,7 +52,8 @@ function HRRN() {
     }));
   };
 
-  const processedList = processes.length > 0 ? calculateHRRN(processes, currentTime) : [];
+  const processedList = calculateHRRN(processes);
+
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
@@ -84,19 +84,7 @@ function HRRN() {
           className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         />
       </div>
-      <div className="mb-4">
-        <label htmlFor="currentTime" className="block text-gray-700 font-semibold mb-2">
-          Current Time
-        </label>
-        <input
-          type="number"
-          id="currentTime"
-          placeholder="Current Time"
-          value={currentTime}
-          onChange={(e) => setCurrentTime(Math.max(0, parseInt(e.target.value, 10)))}
-          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        />
-      </div>
+
       <button
         onClick={addProcess}
         className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md"
