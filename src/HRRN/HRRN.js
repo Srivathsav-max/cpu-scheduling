@@ -8,18 +8,19 @@ function HRRN() {
     if (inputProcess.burstTime > 0 && inputProcess.arrivalTime >= 0) {
       setProcesses(prevProcesses => [
         ...prevProcesses,
-        { ...inputProcess, id: prevProcesses.length + 1, remainingTime: inputProcess.burstTime }
+        { ...inputProcess, id: prevProcesses.length + 1 }
       ]);
       setInputProcess({ id: processes.length + 2, arrivalTime: '', burstTime: '' });
     }
   };
 
   const calculateHRRN = (processes) => {
-    let localTime = processes.length > 0 ? processes[0].arrivalTime : 0; // Start at the arrival of the first process
+    let localTime = processes.length > 0 ? Math.min(...processes.map(p => p.arrivalTime)) : 0;
     const n = processes.length;
     const completed = new Array(n).fill(false);
     const waitingTime = new Array(n).fill(0);
     const turnaroundTime = new Array(n).fill(0);
+    const finishTime = new Array(n).fill(0);
     let completedProcesses = 0;
 
     while (completedProcesses < n) {
@@ -27,19 +28,22 @@ function HRRN() {
       let maxRatio = -1;
       for (let i = 0; i < n; i++) {
         if (processes[i].arrivalTime <= localTime && !completed[i]) {
-          let responseRatio = (localTime - processes[i].arrivalTime + processes[i].burstTime) / processes[i].burstTime;
+          const responseRatio = (localTime - processes[i].arrivalTime + processes[i].burstTime) / processes[i].burstTime;
           if (responseRatio > maxRatio) {
             maxRatio = responseRatio;
             idx = i;
           }
         }
       }
+
       if (idx === -1) {
-        localTime++;
+        localTime = Math.min(...processes.filter(p => !completed[processes.indexOf(p)]).map(p => p.arrivalTime));
         continue;
       }
+
       waitingTime[idx] = localTime - processes[idx].arrivalTime;
       localTime += processes[idx].burstTime;
+      finishTime[idx] = localTime;
       turnaroundTime[idx] = waitingTime[idx] + processes[idx].burstTime;
       completed[idx] = true;
       completedProcesses++;
@@ -49,46 +53,17 @@ function HRRN() {
       ...process,
       waitingTime: waitingTime[index],
       turnaroundTime: turnaroundTime[index],
+      finishTime: finishTime[index], // add finishTime here
     }));
   };
 
   const processedList = calculateHRRN(processes);
 
-
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
       <h2 className="text-2xl font-bold text-gray-900 mb-4">Highest Response Ratio Next Scheduling</h2>
-      <div className="mb-4">
-        <label htmlFor="arrivalTime" className="block text-gray-700 font-semibold mb-2">
-          Arrival Time
-        </label>
-        <input
-          type="number"
-          id="arrivalTime"
-          placeholder="Arrival Time"
-          value={inputProcess.arrivalTime}
-          onChange={(e) => setInputProcess({ ...inputProcess, arrivalTime: parseInt(e.target.value, 10) })}
-          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="burstTime" className="block text-gray-700 font-semibold mb-2">
-          Burst Time
-        </label>
-        <input
-          type="number"
-          id="burstTime"
-          placeholder="Burst Time"
-          value={inputProcess.burstTime}
-          onChange={(e) => setInputProcess({ ...inputProcess, burstTime: parseInt(e.target.value, 10) })}
-          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        />
-      </div>
-
-      <button
-        onClick={addProcess}
-        className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md"
-      >
+      {/* ... input fields for arrival time and burst time ... */}
+      <button onClick={addProcess} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md">
         Add Process
       </button>
 
@@ -101,6 +76,7 @@ function HRRN() {
                 <th className="px-4 py-2">ID</th>
                 <th className="px-4 py-2">Arrival Time</th>
                 <th className="px-4 py-2">Burst Time</th>
+                <th className="px-4 py-2">Completion Time</th>
                 <th className="px-4 py-2">Waiting Time</th>
                 <th className="px-4 py-2">Turnaround Time</th>
               </tr>
@@ -113,6 +89,7 @@ function HRRN() {
                   <td className="border px-4 py-2">{process.burstTime}</td>
                   <td className="border px-4 py-2">{process.waitingTime}</td>
                   <td className="border px-4 py-2">{process.turnaroundTime}</td>
+                  <td className="border px-4 py-2">{process.finishTime}</td>
                 </tr>
               ))}
             </tbody>
