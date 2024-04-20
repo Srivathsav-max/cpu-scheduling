@@ -20,6 +20,7 @@ function SRT() {
     const n = processes.length;
     const waitingTime = new Array(n).fill(0);
     const turnaroundTime = new Array(n).fill(0);
+    const finishTimes = new Array(n).fill(0);
     const remainingTime = processes.map(process => process.burstTime);
 
     while (completed !== n) {
@@ -37,15 +38,11 @@ function SRT() {
         continue;
       }
       remainingTime[shortest]--;
-      minRemainingTime = remainingTime[shortest];
-      if (minRemainingTime === 0) {
-        minRemainingTime = Infinity;
-      }
       if (remainingTime[shortest] === 0) {
         completed++;
         isProcessRunning = false;
-        finishTime = time + 1;
-        waitingTime[shortest] = finishTime - processes[shortest].burstTime - processes[shortest].arrivalTime;
+        finishTimes[shortest] = time + 1;
+        waitingTime[shortest] = finishTimes[shortest] - processes[shortest].burstTime - processes[shortest].arrivalTime;
         if (waitingTime[shortest] < 0) {
           waitingTime[shortest] = 0;
         }
@@ -59,6 +56,7 @@ function SRT() {
       ...process,
       waitingTime: waitingTime[index],
       turnaroundTime: turnaroundTime[index],
+      finishTime: finishTimes[index], // Include the finish time here
     }));
   };
 
@@ -109,6 +107,7 @@ function SRT() {
                 <th className="px-4 py-2">ID</th>
                 <th className="px-4 py-2">Arrival Time</th>
                 <th className="px-4 py-2">Burst Time</th>
+                <th className="px-4 py-2">Completion Time</th> 
                 <th className="px-4 py-2">Waiting Time</th>
                 <th className="px-4 py-2">Turnaround Time</th>
               </tr>
@@ -121,6 +120,7 @@ function SRT() {
                   <td className="border px-4 py-2">{process.burstTime}</td>
                   <td className="border px-4 py-2">{process.waitingTime}</td>
                   <td className="border px-4 py-2">{process.turnaroundTime}</td>
+                  <td className="border px-4 py-2">{process.finishTime}</td> 
                 </tr>
               ))}
             </tbody>
