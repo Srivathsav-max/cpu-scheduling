@@ -19,47 +19,54 @@ function RR() {
       setInputProcess({ arrivalTime: '', burstTime: '' });
     }
   };
-
+  
   const calculateRR = (processes, quantum) => {
     let time = 0;
     const n = processes.length;
-    const remainingTime = [...processes].map(process => process.burstTime);
     const waitingTime = new Array(n).fill(0);
     const turnaroundTime = new Array(n).fill(0);
     const completionTime = new Array(n).fill(0);
-
-    let queue = processes.map((process, index) => ({ ...process, index }));
+  
+    let queue = processes.map((process, index) => ({
+      ...process,
+      index,
+      remainingTime: process.burstTime,
+    }));
     let ganttChart = [];
-
+  
     while (queue.length > 0) {
-      const process = queue.shift();
+      let processIndex = 0;
+      let process = queue[processIndex];
       const execTime = Math.min(process.remainingTime, quantum);
-
+  
       // Increase time and decrease remaining time
       time += execTime;
       process.remainingTime -= execTime;
-
+  
       // Add to Gantt chart
       ganttChart.push({ id: process.id, start: time - execTime, end: time });
-
+  
       // For all other processes in the queue, increase their waiting time
-      queue.forEach(p => {
-        if (p.id !== process.id) {
+      queue.forEach((p, idx) => {
+        if (idx !== processIndex) {
           waitingTime[p.index] += execTime;
         }
       });
-
-      // If process is not finished, push it back to the queue
+  
+      // If process is not finished, push it back at the end of the queue
       if (process.remainingTime > 0) {
-        queue.push(process);
+        queue.push({...process});
+        queue.splice(processIndex, 1);
       } else {
         completionTime[process.index] = time;
         turnaroundTime[process.index] = time - process.arrivalTime;
+        queue.splice(processIndex, 1);
       }
     }
-
+  
     return { processes, waitingTime, turnaroundTime, completionTime, ganttChart };
   };
+  
 
   const { processes: processedList, waitingTime, turnaroundTime, completionTime, ganttChart } = calculateRR(processes, quantum);
 
