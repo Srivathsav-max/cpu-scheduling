@@ -62,7 +62,22 @@ function HRRN() {
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
       <h2 className="text-2xl font-bold text-gray-900 mb-4">Highest Response Ratio Next Scheduling</h2>
-      {/* ... input fields for arrival time and burst time ... */}
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <input
+          type="number"
+          placeholder="Arrival Time"
+          value={inputProcess.arrivalTime}
+          onChange={(e) => setInputProcess({ ...inputProcess, arrivalTime: e.target.value })}
+          className="border-2 border-gray-200 rounded py-2 px-4"
+        />
+        <input
+          type="number"
+          placeholder="Burst Time"
+          value={inputProcess.burstTime}
+          onChange={(e) => setInputProcess({ ...inputProcess, burstTime: e.target.value })}
+          className="border-2 border-gray-200 rounded py-2 px-4"
+        />
+      </div>
       <button onClick={addProcess} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md">
         Add Process
       </button>
