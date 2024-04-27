@@ -125,7 +125,7 @@ function FCFS() {
               <th className="px-4 py-2 border">Job</th>
               <th className="px-4 py-2 border">Arrival Time</th>
               <th className="px-4 py-2 border">Burst Time</th>
-              <th className="px-4 py-2 border">Finish Time</th>
+              <th className="px-4 py-2 border">Completion Time</th>
               <th className="px-4 py-2 border">Turnaround Time</th>
               <th className="px-4 py-2 border">Waiting Time</th>
             </tr>

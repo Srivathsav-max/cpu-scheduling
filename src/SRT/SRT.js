@@ -108,8 +108,8 @@ function SRT() {
                 <th className="px-4 py-2 border">Arrival Time</th>
                 <th className="px-4 py-2 border">Burst Time</th>
                 <th className="px-4 py-2 border">Completion Time</th> 
-                <th className="px-4 py-2 border">Waiting Time</th>
                 <th className="px-4 py-2 border">Turnaround Time</th>
+                <th className="px-4 py-2 border">Waiting Time</th>
               </tr>
             </thead>
             <tbody>
@@ -118,9 +118,9 @@ function SRT() {
                   <td className=" px-4 py-2 border">{process.id}</td>
                   <td className=" px-4 py-2 border">{process.arrivalTime}</td>
                   <td className=" px-4 py-2 border">{process.burstTime}</td>
-                  <td className=" px-4 py-2 border">{process.waitingTime}</td>
-                  <td className=" px-4 py-2 border">{process.turnaroundTime}</td>
                   <td className=" px-4 py-2 border">{process.finishTime}</td> 
+                  <td className=" px-4 py-2 border">{process.turnaroundTime}</td>
+                  <td className=" px-4 py-2 border">{process.waitingTime}</td>
                 </tr>
               ))}
             </tbody>
