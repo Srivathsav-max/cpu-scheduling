@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 function RR() {
   const [processes, setProcesses] = useState([]);
-  const [quantum, setQuantum] = useState('1'); // Default quantum value
+  const [quantum, setQuantum] = useState(''); // Default quantum value
   const [inputProcess, setInputProcess] = useState({ arrivalTime: '', burstTime: '' });
 
   const addProcess = () => {
