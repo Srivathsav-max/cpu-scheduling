@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 function SRT() {
   const [processes, setProcesses] = useState([]);
-  const [inputProcess, setInputProcess] = useState({arrivalTime: '', burstTime: '' });
+  const [inputProcess, setInputProcess] = useState({ id: 1, arrivalTime: 0, burstTime: 0 });
 
   const addProcess = () => {
     if (inputProcess.burstTime > 0) {
@@ -65,25 +65,35 @@ function SRT() {
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
       <h2 className="text-2xl font-bold text-gray-900 mb-4">Shortest Remaining Time Scheduling</h2>
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="mb-4">
+        <label htmlFor="arrivalTime" className="block text-gray-700 font-semibold mb-2">
+          Arrival Time
+        </label>
         <input
           type="number"
+          id="arrivalTime"
           placeholder="Arrival Time"
           value={inputProcess.arrivalTime}
-          onChange={(e) => setInputProcess({ ...inputProcess, arrivalTime: e.target.value })}
-          className="border-2 border-gray-200 rounded py-2 px-4"
+          onChange={(e) => setInputProcess({ ...inputProcess, arrivalTime: parseInt(e.target.value) })}
+          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         />
+      </div>
+      <div className="mb-4">
+        <label htmlFor="burstTime" className="block text-gray-700 font-semibold mb-2">
+          Burst Time
+        </label>
         <input
           type="number"
+          id="burstTime"
           placeholder="Burst Time"
           value={inputProcess.burstTime}
-          onChange={(e) => setInputProcess({ ...inputProcess, burstTime: e.target.value })}
-          className="border-2 border-gray-200 rounded py-2 px-4"
+          onChange={(e) => setInputProcess({ ...inputProcess, burstTime: parseInt(e.target.value) })}
+          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         />
       </div>
       <button
         onClick={addProcess}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md"
       >
         Add Process
       </button>
