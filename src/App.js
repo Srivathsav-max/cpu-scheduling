@@ -64,7 +64,6 @@ function App() {
       </div>
       <footer className="bg-transparent text-gray-500 py-4">
         <p className="text-center">© 2024 CPU Scheduling Simulator Team 1</p>
-        <p className="text-center">by Srivathsav ❤️</p>
       </footer>
     </div>
   );
