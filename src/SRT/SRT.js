@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 function SRT() {
   const [processes, setProcesses] = useState([]);
-  const [inputProcess, setInputProcess] = useState({ id: 1, arrivalTime: 0, burstTime: 0 });
+  const [inputProcess, setInputProcess] = useState({ id: 1, arrivalTime: '', burstTime: '' });
 
   const addProcess = () => {
     if (inputProcess.burstTime > 0) {
@@ -63,37 +63,37 @@ function SRT() {
   const processedList = processes.length > 0 ? calculateSRT(processes) : [];
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
+    <div className="bg-white rounded-lg shadow-lg p-6 m-4">
       <h2 className="text-2xl font-bold text-gray-900 mb-4">Shortest Remaining Time Scheduling</h2>
-      <div className="mb-4">
-        <label htmlFor="arrivalTime" className="block text-gray-700 font-semibold mb-2">
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        {/* <label htmlFor="arrivalTime" className="border-2 border-gray-200 rounded py-2 px-4">
           Arrival Time
-        </label>
+        </label> */}
         <input
           type="number"
           id="arrivalTime"
           placeholder="Arrival Time"
           value={inputProcess.arrivalTime}
           onChange={(e) => setInputProcess({ ...inputProcess, arrivalTime: parseInt(e.target.value) })}
-          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          className="border-2 border-gray-200 rounded py-2 px-4"
         />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="burstTime" className="block text-gray-700 font-semibold mb-2">
+
+      {/* <div className="mb-4"> */}
+        {/* <label htmlFor="burstTime" className="border-2 border-gray-200 rounded py-2 px-4">
           Burst Time
-        </label>
+        </label> */}
         <input
           type="number"
           id="burstTime"
           placeholder="Burst Time"
           value={inputProcess.burstTime}
           onChange={(e) => setInputProcess({ ...inputProcess, burstTime: parseInt(e.target.value) })}
-          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          className="border-2 border-gray-200 rounded py-2 px-4"
         />
       </div>
       <button
         onClick={addProcess}
-        className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md"
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
       >
         Add Process
       </button>
@@ -101,26 +101,26 @@ function SRT() {
       <div className="mt-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-2">Processes</h3>
         <div className="overflow-x-auto">
-          <table className="w-full table-auto">
-            <thead>
+          <table className="min-w-full table-auto">
+            <thead className="bg-gray-200">
               <tr>
-                <th className="px-4 py-2">ID</th>
-                <th className="px-4 py-2">Arrival Time</th>
-                <th className="px-4 py-2">Burst Time</th>
-                <th className="px-4 py-2">Completion Time</th> 
-                <th className="px-4 py-2">Waiting Time</th>
-                <th className="px-4 py-2">Turnaround Time</th>
+                <th className="px-4 py-2 border">ID</th>
+                <th className="px-4 py-2 border">Arrival Time</th>
+                <th className="px-4 py-2 border">Burst Time</th>
+                <th className="px-4 py-2 border">Completion Time</th> 
+                <th className="px-4 py-2 border">Waiting Time</th>
+                <th className="px-4 py-2 border">Turnaround Time</th>
               </tr>
             </thead>
             <tbody>
               {processedList.map((process, index) => (
                 <tr key={index}>
-                  <td className="border px-4 py-2">{process.id}</td>
-                  <td className="border px-4 py-2">{process.arrivalTime}</td>
-                  <td className="border px-4 py-2">{process.burstTime}</td>
-                  <td className="border px-4 py-2">{process.waitingTime}</td>
-                  <td className="border px-4 py-2">{process.turnaroundTime}</td>
-                  <td className="border px-4 py-2">{process.finishTime}</td> 
+                  <td className=" px-4 py-2 border">{process.id}</td>
+                  <td className=" px-4 py-2 border">{process.arrivalTime}</td>
+                  <td className=" px-4 py-2 border">{process.burstTime}</td>
+                  <td className=" px-4 py-2 border">{process.waitingTime}</td>
+                  <td className=" px-4 py-2 border">{process.turnaroundTime}</td>
+                  <td className=" px-4 py-2 border">{process.finishTime}</td> 
                 </tr>
               ))}
             </tbody>
