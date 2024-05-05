@@ -1,94 +1,67 @@
 import React, { useState } from 'react';
 
 function RR() {
-  const [processes, setProcesses] = useState([]);
-  const [quantum, setQuantum] = useState('1'); // Default quantum value
   const [inputProcess, setInputProcess] = useState({ arrivalTime: '', burstTime: '' });
+  const [processes, setProcesses] = useState([]);
+  const [quantum, setQuantum] = useState(3); // Default quantum can be set dynamically
+  const [processedList, setProcessedList] = useState([]);
 
   const addProcess = () => {
-    if (inputProcess.burstTime > 0 && inputProcess.arrivalTime >= 0) {
-      setProcesses([
-        ...processes,
-        {
-          id: processes.length + 1,
-          arrivalTime: parseInt(inputProcess.arrivalTime),
-          burstTime: parseInt(inputProcess.burstTime),
-          remainingTime: parseInt(inputProcess.burstTime),
-        },
-      ]);
-      setInputProcess({ arrivalTime: '', burstTime: '' });
-    }
+    setProcesses(prevProcesses => [
+      ...prevProcesses, 
+      { 
+        id: prevProcesses.length + 1,
+        arrivalTime: parseInt(inputProcess.arrivalTime, 10),
+        burstTime: parseInt(inputProcess.burstTime, 10),
+        remainingTime: parseInt(inputProcess.burstTime, 10)
+      }
+    ]);
+    setInputProcess({ arrivalTime: '', burstTime: '' }); // Reset inputs
   };
-  
-  const calculateRR = (processes, quantum) => {
+
+  const runRoundRobin = () => {
     let time = 0;
-    const n = processes.length;
-    const waitingTime = new Array(n).fill(0);
-    const turnaroundTime = new Array(n).fill(0);
-    const completionTime = new Array(n).fill(0);
+    let queue = [];
+    let finishedProcesses = [];
+
+    processes.sort((a, b) => a.arrivalTime - b.arrivalTime);
   
-    let queue = processes.map((process, index) => ({
-      ...process,
-      index,
-      remainingTime: process.burstTime,
-    }));
-    let ganttChart = [];
-  
-    while (queue.length > 0) {
-      let processIndex = 0;
-      let process = queue[processIndex];
-      const execTime = Math.min(process.remainingTime, quantum);
-  
-      // Increase time and decrease remaining time
-      time += execTime;
-      process.remainingTime -= execTime;
-  
-      // Add to Gantt chart
-      ganttChart.push({ id: process.id, start: time - execTime, end: time });
-  
-      // For all other processes in the queue, increase their waiting time
-      queue.forEach((p, idx) => {
-        if (idx !== processIndex) {
-          waitingTime[p.index] += execTime;
-        }
-      });
-  
-      // If process is not finished, push it back at the end of the queue
+    // Initialize the queue with processes that are ready at time 0
+    while (processes.length > 0 && processes[0].arrivalTime <= time) {
+      queue.push(processes.shift());
+    }
+
+    while (queue.length > 0 || processes.length > 0) {
+      if (queue.length === 0) {
+        // If the queue is empty, jump time to the next process's arrival
+        time = processes[0].arrivalTime;
+        queue.push(processes.shift());
+      }
+
+      let process = queue.shift();
+      let timeSpent = Math.min(process.remainingTime, quantum);
+      process.remainingTime -= timeSpent;
+      time += timeSpent;
+
+      // Check for new arrivals during the current process's execution
+      while (processes.length > 0 && processes[0].arrivalTime <= time) {
+        queue.push(processes.shift());
+      }
+
       if (process.remainingTime > 0) {
-        queue.push({...process});
-        queue.splice(processIndex, 1);
+        queue.push(process);  // Re-queue the process if it's not finished
       } else {
-        completionTime[process.index] = time;
-        turnaroundTime[process.index] = time - process.arrivalTime;
-        queue.splice(processIndex, 1);
+        finishedProcesses.push({
+          ...process,
+          finishTime: time,
+          turnaroundTime: time - process.arrivalTime,
+          waitingTime: time - process.arrivalTime - process.burstTime
+        });
       }
     }
   
-    return { processes, waitingTime, turnaroundTime, completionTime, ganttChart };
-  };
-  
-
-  const { processes: processedList, waitingTime, turnaroundTime, completionTime, ganttChart } = calculateRR(processes, quantum);
-
-  const renderGanttChart = () => {
-    const chartWidth = ganttChart.reduce((max, item) => Math.max(max, item.end), 0) * 20;
-    return (
-      <div className="flex items-center">
-        {ganttChart.map((item, index) => (
-          <React.Fragment key={index}>
-            <div className="w-4 h-6 bg-gray-200 mr-2"></div>
-            <span className="font-semibold">{item.id}</span>
-            <div
-              className="bg-blue-500 h-6 ml-2"
-              style={{ width: `${(item.end - item.start) * 20}px` }}
-            ></div>
-            <span className="ml-2">{item.start} - {item.end}</span>
-          </React.Fragment>
-        ))}
-        <div className="w-full bg-gray-200 h-1 mt-2"></div>
-      </div>
-    );
-  };
+    setProcessedList(finishedProcesses.sort((a, b) => a.id - b.id));
+  };  
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 m-4">
@@ -109,16 +82,14 @@ function RR() {
           className="border-2 border-gray-200 rounded py-2 px-4"
         />
       </div>
-      <button
-        onClick={addProcess}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      >
+      <button onClick={addProcess} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
         Add Process
       </button>
+      <button onClick={runRoundRobin} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded ml-4">
+        Start Scheduling
+      </button>
       <div className="mt-6">
-        <label htmlFor="quantumTime" className="block text-gray-700 font-semibold mb-2">
-          Time Quantum
-        </label>
+        <label htmlFor="quantumTime" className="block text-gray-700 font-semibold mb-2">Time Quantum</label>
         <input
           type="number"
           id="quantumTime"
@@ -128,14 +99,8 @@ function RR() {
           className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         />
       </div>
-
       <div className="mt-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Gantt Chart</h3>
-        {renderGanttChart()}
-      </div>
-
-      <div className="mt-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Processes</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Processed Jobs</h3>
         <table className="min-w-full table-auto">
           <thead className="bg-gray-200">
             <tr>
@@ -153,29 +118,15 @@ function RR() {
                 <td className="px-4 py-2 border">{process.id}</td>
                 <td className="px-4 py-2 border">{process.arrivalTime}</td>
                 <td className="px-4 py-2 border">{process.burstTime}</td>
-                <td className="px-4 py-2 border">{completionTime[index]}</td>
-                <td className="px-4 py-2 border">{turnaroundTime[index]}</td>
-                <td className="px-4 py-2 border">{waitingTime[index]}</td>
+                <td className="px-4 py-2 border">{process.finishTime}</td>
+                <td className="px-4 py-2 border">{process.turnaroundTime}</td>
+                <td className="px-4 py-2 border">{process.waitingTime}</td>
               </tr>
             ))}
           </tbody>
-          <tfoot className="bg-gray-200">
-            <tr>
-              <td colSpan={3} className="px-4 py-2 border font-semibold text-right">
-                Average
-              </td>
-              <td className="px-4 py-2 border"></td>
-              <td className="px-4 py-2 border">
-                {(turnaroundTime.reduce((sum, value) => sum + value, 0) / turnaroundTime.length).toFixed(2)}
-              </td>
-              <td className="px-4 py-2 border">
-                {(waitingTime.reduce((sum, value) => sum + value, 0) / waitingTime.length).toFixed(2)}
-              </td>
-            </tr>
-          </tfoot>
         </table>
-        </div>
       </div>
+    </div>
   );
 }
 
