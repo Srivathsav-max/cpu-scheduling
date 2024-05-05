@@ -1,4 +1,6 @@
-# On Air Cpu Simulator
+# CPU Scheduling
+
+## On Air Cpu Simulator
 Live Demo [CPU Scheduling Simulator](https://cpu-scheduling-tau.vercel.app/).
 
 # Prerequisites
